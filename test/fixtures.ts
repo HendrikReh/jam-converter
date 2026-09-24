@@ -3,7 +3,7 @@ import { zipSync, strToU8 } from 'fflate';
 import { zstdCompressSync } from 'node:zlib';
 export const guid = (id: number) => ({sessionID:1, localID:id});
 export const file = {name:'demo.jam', sha256:'a'.repeat(64), formatVersion:106};
-export const rawNode = (id:number,type:string,name:string,parent=0,extra:Record<string,unknown>={}) => ({guid:guid(id),type,name,parentIndex:{guid:guid(parent),position:String(id)},visible:true,...extra});
+export const rawNode = (id:number,type:string,name:string,parent=0,extra:Record<string,unknown>={}) => ({guid:guid(id),type,name,...(type==='DOCUMENT'?{}:{parentIndex:{guid:guid(parent),position:String(id)}}),visible:true,...extra});
 export function jamBytes(nodes: any[]) {
  const doc=createEmptyFigDoc();doc.message.nodeChanges=nodes;
  const parts=encodeFigParts(doc);
