@@ -135,3 +135,26 @@ test('empty sticky placeholder names do not become workshop content', () => {
   );
   assert.equal(m.workshop.length, 0);
 });
+test('sequence numbering must occur at a source line boundary, not a truncated quote', () => {
+  const m = analyze(source());
+  m.source.nodes.find((n) => n.id === '1:4').text = 'Version 1. Login is a candidate.';
+  m.relations[0].evidence = ev('1:4', '1. Login');
+  const sequence = {
+    id: 'seq-truncated',
+    title: 'Login',
+    areaId: m.areas[0].id,
+    evidence: ev('1:4', '1. Login'),
+    steps: [
+      {
+        order: 1,
+        from: m.systems[0].id,
+        to: m.systems[1].id,
+        message: 'Login',
+        evidence: ev('1:4', '1. Login'),
+      },
+    ],
+  };
+  assert.throws(() => applyMapping(m, { sequences: [sequence] }, 'manual'), /order|Reihenfolge/i);
+  m.source.nodes.find((n) => n.id === '1:4').text = 'Ablauf:\n1. Login';
+  assert.equal(applyMapping(m, { sequences: [sequence] }, 'manual').sequences.length, 1);
+});

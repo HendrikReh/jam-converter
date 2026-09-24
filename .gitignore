@@ -2,6 +2,8 @@ node_modules/
 dist/
 output/
 .superpowers/
+.docs/superpowers/plans
+.docs/superpowers/specs
 .env
 .env.*
 !.env.example

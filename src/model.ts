@@ -11,7 +11,7 @@ export const AssetSchema = z.object({
   hash: z.string(),
   sha256: z.string(),
   mimeType: z.string(),
-  path: z.string(),
+  path: z.string().regex(/^assets\/[a-f0-9]{40}\.(?:png|jpg|gif|webp|bin)$/, 'Invalid asset path'),
   nodeIds: z.array(z.string()),
 });
 export const SourceNodeSchema = z.object({

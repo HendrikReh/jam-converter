@@ -30,11 +30,11 @@ Der Nutzer hat lokale Verarbeitung mit optionaler KI-Auswertung gewählt. Die KI
 
 ## Untersuchte Ansätze
 
-| Ansatz | Vorteil | Nachteil |
-| --- | --- | --- |
+| Ansatz                                                       | Vorteil                                                     | Nachteil                                                              |
+| ------------------------------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------------------------- |
 | Direkter lokaler JAM-Parser mit austauschbarem Importadapter | Arbeitet mit den gelieferten Dateien, keine Figma-Anmeldung | Proprietäres Format; Kompatibilität muss an Beispielen geprüft werden |
-| Figma-API oder Exportplugin | Offizieller Zugang zu nativen Boardelementen | Erfordert Zugriff auf Online-Boards; Bilddiagramme bleiben Bilder |
-| Ausschließlich PDF/Bilder mit visueller Auswertung | Erfasst die sichtbare Darstellung | Verliert native IDs und sichere Verknüpfungen; größerer Prüfbedarf |
+| Figma-API oder Exportplugin                                  | Offizieller Zugang zu nativen Boardelementen                | Erfordert Zugriff auf Online-Boards; Bilddiagramme bleiben Bilder     |
+| Ausschließlich PDF/Bilder mit visueller Auswertung           | Erfasst die sichtbare Darstellung                           | Verliert native IDs und sichere Verknüpfungen; größerer Prüfbedarf    |
 
 Empfehlung: direkter JAM-Import, ein normalisiertes Zwischenmodell und getrennte Exporte. Eine spätere Figma-API-Anbindung könnte dasselbe Zwischenmodell beliefern, wird aber jetzt nicht gebaut.
 

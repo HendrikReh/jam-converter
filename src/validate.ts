@@ -49,7 +49,19 @@ export function validateModel(input: unknown): Model {
         throw new Error(`Unknown sequence System reference: ${seq.id}`);
       validateEvidence(s.evidence, m.source);
       const numbered = new RegExp(`(?:^|\\n)\\s*(?:(?:Schritt|Step)\\s+)?${s.order}[.):]\\s+`, 'i');
-      if (!s.evidence.some((e) => numbered.test(e.quote ?? '')))
+      if (
+        !s.evidence.some((e) => {
+          if (!e.quote || !numbered.test(e.quote)) return false;
+          const node = m.source.nodes.find((n) => n.id === e.sourceId);
+          // Image numbering remains an interpretation requiring visual review.
+          if (!node) return true;
+          return [node.text, node.name].some((text) =>
+            [...text.matchAll(new RegExp(numbered.source, 'gi'))].some((match) =>
+              compact(text.slice(match.index)).startsWith(compact(e.quote!)),
+            ),
+          );
+        })
+      )
         throw new Error(`Missing explicit order evidence / Reihenfolge: ${seq.id} step ${s.order}`);
     }
     seq.steps = sorted;

@@ -83,3 +83,33 @@ test('flowchart retains external endpoints across areas', () => {
     assert.match(text, /ERP/);
   }
 });
+test('standalone Mermaid visibly labels AI relations and sequences as proposals', async () => {
+  const m = demoModel();
+  m.relations[0].origin = 'ai';
+  m.sequences[0].origin = 'ai';
+  for (const label of ['Login', '']) {
+    m.relations[0].label = label;
+    const files = renderFiles(m);
+    const diagram = [...files].find(([p]) => p.startsWith('diagrams/'))[1];
+    const sequence = [...files].find(([p]) => p.startsWith('sequences/'))[1];
+    assert.match(diagram, /-->\|"[^\n]*KI-Vorschlag/);
+    assert.match(sequence, /Note over .*KI-Vorschlag/);
+    const mermaid = (await import('mermaid')).default;
+    assert.ok(await mermaid.parse(diagram));
+    assert.ok(await mermaid.parse(sequence));
+  }
+});
+test('edited asset paths cannot replace generated documents or their manifest', () => {
+  for (const path of ['README.md', '.jam-converter.json', 'assets/../README.md']) {
+    const m = demoModel();
+    m.source.assets.push({
+      id: 'image:' + 'a'.repeat(40),
+      hash: 'a'.repeat(40),
+      sha256: 'b'.repeat(64),
+      mimeType: 'image/png',
+      path,
+      nodeIds: ['1:2'],
+    });
+    assert.throws(() => renderFiles(m), /asset|path/i);
+  }
+});

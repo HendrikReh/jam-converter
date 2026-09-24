@@ -49,19 +49,7 @@ export async function loadAssets(model: Model, base: string): Promise<Map<string
   }
   return result;
 }
-export async function writeOutput(
-  dir: string,
-  input: Model,
-  assets: Map<string, Uint8Array>,
-  overwrite = false,
-): Promise<void> {
-  const model = validateModel(input),
-    files = new Map<string, string | Uint8Array>(renderFiles(model));
-  for (const a of model.source.assets) {
-    const bytes = assets.get(a.path);
-    if (!bytes || hash(bytes) !== a.sha256) throw new Error(`Missing or modified asset: ${a.id}`);
-    files.set(a.path, bytes);
-  }
+export async function checkOutputTarget(dir: string, overwrite = false) {
   const target = resolve(dir);
   const st = await exists(target);
   if (st?.isSymbolicLink()) throw new Error('Output is a symlink');
@@ -83,6 +71,22 @@ export async function writeOutput(
         throw new Error(`Managed file modified / geändert: ${path}`);
     }
   }
+  return { target, st, old };
+}
+export async function writeOutput(
+  dir: string,
+  input: Model,
+  assets: Map<string, Uint8Array>,
+  overwrite = false,
+): Promise<void> {
+  const model = validateModel(input),
+    files = new Map<string, string | Uint8Array>(renderFiles(model));
+  for (const a of model.source.assets) {
+    const bytes = assets.get(a.path);
+    if (!bytes || hash(bytes) !== a.sha256) throw new Error(`Missing or modified asset: ${a.id}`);
+    files.set(a.path, bytes);
+  }
+  const { target, st, old } = await checkOutputTarget(dir, overwrite);
   for (const path of files.keys()) {
     const full = await safePath(target, path);
     if (st && (await exists(full)) && !Object.hasOwn(old, path))

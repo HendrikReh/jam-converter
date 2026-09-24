@@ -67,7 +67,9 @@ export function renderFiles(input: Model): Map<string, string> {
     }
     for (const r of rels) {
       const edge = r.direction === 'both' ? '<-->' : r.direction === 'none' ? '---' : '-->';
-      lines.push(`  ${token(r.from)} ${edge}${r.label ? `|"${mm(r.label)}"|` : ''} ${token(r.to)}`);
+      const label =
+        r.origin === 'ai' ? [r.label, 'KI-Vorschlag'].filter(Boolean).join(' · ') : r.label;
+      lines.push(`  ${token(r.from)} ${edge}${label ? `|"${mm(label)}"|` : ''} ${token(r.to)}`);
     }
     const diagram = lines.join('\n') + '\n',
       path = `diagrams/${slug(area.title)}-${token(area.id)}-${area.view}.mmd`;
@@ -82,8 +84,16 @@ export function renderFiles(input: Model): Map<string, string> {
   for (const seq of m.sequences) {
     const ids = [...new Set(seq.steps.flatMap((s) => [s.from, s.to]))];
     const lines = ['sequenceDiagram'];
-    for (const id of ids)
-      lines.push(`  participant ${token(id)} as ${mm(systemMap.get(id)!.name)}`);
+    for (const id of ids) {
+      const system = systemMap.get(id)!;
+      lines.push(
+        `  participant ${token(id)} as ${mm(system.name + (system.origin === 'ai' ? ' · KI-Vorschlag' : ''))}`,
+      );
+    }
+    if (seq.origin === 'ai')
+      lines.push(
+        `  Note over ${token(ids[0]!)}: KI-Vorschlag – Reihenfolge und Interpretation prüfen`,
+      );
     for (const s of seq.steps)
       lines.push(`  ${token(s.from)}->>${token(s.to)}: ${s.order}. ${mm(s.message)}`);
     const diagram = lines.join('\n') + '\n',

@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { readJam } from './importer.ts';
 import { analyze, applyMapping } from './analyze.ts';
 import { validateModel } from './validate.ts';
-import { loadAssets, writeOutput } from './output.ts';
+import { loadAssets, writeOutput, checkOutputTarget } from './output.ts';
 import { enrich, prepareEnrichment } from './enrich.ts';
 import type { Model } from './model.ts';
 const help = `jam-convert — lokale FigJam-Konvertierung
@@ -148,6 +148,7 @@ async function main() {
       );
       return;
     }
+    await checkOutputTarget(values.out!, values.overwrite);
     model = await enrich(model, options);
   }
   await writeOutput(values.out!, model, assets, values.overwrite);

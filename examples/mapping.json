@@ -1,0 +1,16 @@
+{
+  "requirements": [
+    {
+      "id": "req-1:7",
+      "areaId": "area-1:6",
+      "text": "Single Sign-on für den Webshop",
+      "evidence": [
+        {
+          "sourceId": "1:7",
+          "quote": "Der Webshop muss Single Sign-on unterstützen.",
+          "region": null
+        }
+      ]
+    }
+  ]
+}

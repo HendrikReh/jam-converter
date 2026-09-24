@@ -42,54 +42,67 @@
 
 ### Task 1: Read and normalize JAM files
 
-- [ ] Write importer tests for invalid archive, size limits, native text/connector/image preservation and hidden ancestors. Example assertion:
+- [x] Write importer tests for invalid archive, size limits, native text/connector/image preservation and hidden ancestors. Example assertion:
+
 ```ts
-assert.equal(source.nodes.find(n => n.id === '1:3')?.visible, false);
+assert.equal(source.nodes.find((n) => n.id === '1:3')?.visible, false);
 ```
-- [ ] Run `pnpm test`; expect failed assertions against the importer's initial empty result.
-- [ ] Implement bounded ZIP inspection and parser adapter. Reject path traversal and malformed chunks before decoding. Normalize parent/section/image refs without discarding source text.
-- [ ] Run `pnpm test` and `pnpm typecheck`; expect success.
-- [ ] Inspect both private JAM files locally, record node counts and actual connector/text shapes; do not commit source files.
-- [ ] Commit importer and source schemas.
+
+- [x] Run `pnpm test`; expect failed assertions against the importer's initial empty result.
+- [x] Implement bounded ZIP inspection and parser adapter. Reject path traversal and malformed chunks before decoding. Normalize parent/section/image refs without discarding source text.
+- [x] Run `pnpm test` and `pnpm typecheck`; expect success.
+- [x] Inspect both private JAM files locally, record node counts and actual connector/text shapes; do not commit source files.
+- [x] Commit importer and source schemas.
 
 ### Task 2: Build semantic model and mappings
 
-- [ ] Write tests for cross-area relations, native arrow direction, unclassified notes, explicit requirement/decision sections and mapping-provided numbered sequences.
+- [x] Write tests for cross-area relations, native arrow direction, unclassified notes, explicit requirement/decision sections and mapping-provided numbered sequences.
+
 ```ts
 assert.equal(analyze(source).sequences.length, 0); // unnumbered connector is not a timeline
 ```
-- [ ] Run tests; expect missing semantic results.
-- [ ] Implement section/view grouping, conservative classification, source-derived IDs and explicit mapping schema. Validate sources and references. Mapping supports area assignments plus sourced systems, relations, sequences, requirements, workshop notes and decisions.
-- [ ] Test duplicate step order, absent evidence, hidden sources and fake quotes; each must reject.
-- [ ] Run suite/typecheck and commit.
+
+- [x] Run tests; expect missing semantic results.
+- [x] Implement section/view grouping, conservative classification, source-derived IDs and explicit mapping schema. Validate sources and references. Mapping supports area assignments plus sourced systems, relations, sequences, requirements, workshop notes and decisions.
+- [x] Test duplicate step order, absent evidence, hidden sources and fake quotes; each must reject.
+- [x] Run suite/typecheck and commit.
 
 ### Task 3: Export documents safely
 
-- [ ] Write tests asserting four export types, preserved external nodes, escaped labels, evidence links, draft ADR status and no sequence output without evidence.
+- [x] Write tests asserting four export types, preserved external nodes, escaped labels, evidence links, draft ADR status and no sequence output without evidence.
+
 ```ts
 assert.match(files.get('requirements.md')!, /Quellen/);
 ```
-- [ ] Add filesystem tests: reject existing directory by default; overwrite only managed files; reject symlinks; do not delete unrelated files.
-- [ ] Implement Markdown/Mermaid renderers, source catalogue, coverage report, manifest-based output writer and asset copying.
-- [ ] Parse every sample Mermaid result using Mermaid under jsdom; run suite/typecheck and commit.
+
+- [x] Add filesystem tests: reject existing directory by default; overwrite only managed files; reject symlinks; do not delete unrelated files.
+- [x] Implement Markdown/Mermaid renderers, source catalogue, coverage report, manifest-based output writer and asset copying.
+- [x] Parse every sample Mermaid result using Mermaid under jsdom; run suite/typecheck and commit.
 
 ### Task 4: Optional AI enrichment
 
-- [ ] Write transport-boundary tests with realistic Responses JSON for successful proposals, refusal/incomplete/error responses, nonexistent references, invented quotes and unsupported provider/model configuration.
+- [x] Write transport-boundary tests with realistic Responses JSON for successful proposals, refusal/incomplete/error responses, nonexistent references, invented quotes and unsupported provider/model configuration.
+
 ```ts
-await assert.rejects(() => enrich(model, {provider:'openai',model:'',apiKey:''}), /model|Modell/);
+await assert.rejects(
+  () => enrich(model, { provider: 'openai', model: '', apiKey: '' }),
+  /model|Modell/,
+);
 ```
-- [ ] Implement OpenAI Responses HTTP adapter using explicit model, API key and selected source IDs/images. No model or key implies no call. Use structured output, `store:false`, timeout and bounded request/response sizes.
-- [ ] Validate all returned data, mark it as AI proposals, and retain original source model. Selection is exact; unsubmitted references reject. Enriched model can be re-rendered offline.
-- [ ] Run mocked-network suite/typecheck. Do not send customer files during development. Commit.
+
+- [x] Implement OpenAI Responses HTTP adapter using explicit model, API key and selected source IDs/images. No model or key implies no call. Use structured output, `store:false`, timeout and bounded request/response sizes.
+- [x] Validate all returned data, mark it as AI proposals, and retain original source model. Selection is exact; unsubmitted references reject. Enriched model can be re-rendered offline.
+- [x] Run mocked-network suite/typecheck. Do not send customer files during development. Commit.
 
 ### Task 5: CLI, examples and real-file verification
 
-- [ ] Write child-process tests for inspect, convert, render, enrich dry-run, invalid arguments and overwrite refusal.
+- [x] Write child-process tests for inspect, convert, render, enrich dry-run, invalid arguments and overwrite refusal.
+
 ```ts
-assert.equal(run(['convert',fixture,'--out',existing]).status, 1);
+assert.equal(run(['convert', fixture, '--out', existing]).status, 1);
 ```
-- [ ] Implement CLI, bundled schemas/help, README and synthetic demonstration including every supported output category.
-- [ ] Run all tests and build; convert both user-provided archives locally and record coverage and source checksum preservation.
-- [ ] Validate every generated Mermaid file, visually inspect representative flow/sequence renders, and check package executable installation.
-- [ ] Commit. Obtain final independent review while completing the integration report. Fix important findings with regression tests and rerun checks.
+
+- [x] Implement CLI, bundled schemas/help, README and synthetic demonstration including every supported output category.
+- [x] Run all tests and build; convert both user-provided archives locally and record coverage and source checksum preservation.
+- [x] Validate every generated Mermaid file, visually inspect representative flow/sequence renders, and check package executable installation.
+- [x] Commit. Obtain final independent review while completing the integration report. Fix important findings with regression tests and rerun checks.
