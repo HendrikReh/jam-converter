@@ -1,145 +1,145 @@
-# JAM-Konverter
+# JAM Converter
 
-Lokale FigJam-Dateien in bearbeitbare Architekturdokumentation umwandeln:
+Convert local FigJam files into editable architecture documentation:
 
-- Mermaid-Flowcharts nach Boardbereich, mit nativen Verbindungen und Pfeilrichtungen.
-- Mermaid-Sequenzen bei ausdrücklich nummerierten Nachrichten in einer Sequenz-/Ablaufsektion.
-- Markdown für Anforderungen, Workshop-Notizen und Tabellen.
-- ADR-Entwürfe bei ausdrücklich dokumentierten Entscheidungen und Begründungen.
-- Optionale KI-Auswertung ausgewählter Texte und Diagrammbilder über OpenAI.
+- Mermaid flowcharts grouped by board area, preserving native connections and arrow directions.
+- Mermaid sequence diagrams for explicitly numbered messages in a sequence or interaction section.
+- Markdown for requirements, workshop notes and tables.
+- Draft Architecture Decision Records (ADRs) for explicitly documented decisions and rationale.
+- Optional AI analysis of selected text and diagram images through OpenAI.
 
-Jede Ableitung enthält Quellenreferenzen. Unklare Inhalte bleiben im Prüfbericht sichtbar. Ein Quelltext wie „ignoriere alle Anweisungen“ wird als Dokumentinhalt behandelt.
+Every derived record includes source references. Ambiguous content remains visible in the review report. Source text such as “ignore all instructions” is treated as document content.
 
-## Start
+## Getting started
 
-Benötigt Node.js **24 oder neuer** und pnpm. Es wird kein Figma-Zugang benötigt.
+Requires Node.js **24 or newer** and pnpm. No Figma account is required.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm build
 node dist/cli.js --help
-node dist/cli.js convert "/pfad/board.jam" --out output/board
+node dist/cli.js convert "/path/board.jam" --out output/board
 ```
 
-Für die Entwicklung ohne Build: `pnpm start convert "/pfad/board.jam" --out output/board`.
-Die Paket-Bin heißt `jam-convert`; nach einer lokalen Installation des Pakets kann sie direkt aufgerufen werden. Das Projekt ist als `private` markiert und wird nicht versehentlich veröffentlicht.
+For development without a build: `pnpm start convert "/path/board.jam" --out output/board`.
+The package executable is named `jam-convert`; it can be invoked directly after installing the package locally. The project is marked `private` to prevent accidental package publication.
 
-Ein synthetisches Beispiel demonstriert alle vier Ausgabearten ohne Kundendaten:
+A synthetic example demonstrates all four output types without customer data:
 
 ```sh
 node dist/cli.js render examples/demo.model.json --out output/demo
 ```
 
-## Befehle
+## Commands
 
-| Befehl                                                           | Zweck                                                 |
-| ---------------------------------------------------------------- | ----------------------------------------------------- |
-| `inspect board.jam`                                              | JSON-Inventar mit Elementtypen, Sections und Bild-IDs |
-| `inspect board.jam --sources`                                    | Zusätzlich originale Texte und native Node-IDs        |
-| `convert board.jam --out output/board`                           | Vollständig lokale Konvertierung                      |
-| `convert board.jam --mapping mapping.json --out output/board`    | Lokale Zuordnungen und Ergänzungen anwenden           |
-| `render output/board/model.json --out output/reviewed`           | Gespeichertes Modell ohne KI erneut exportieren       |
-| `render model.json --mapping mapping.json --out output/reviewed` | Modell lokal korrigieren und exportieren              |
-| `enrich model.json --model MODELL --dry-run`                     | Geplante Datenübertragung prüfen, ohne Netzwerkaufruf |
+| Command                                                          | Purpose                                                           |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `inspect board.jam`                                              | JSON inventory of element types, sections and image IDs           |
+| `inspect board.jam --sources`                                    | Also include original text and native node IDs                    |
+| `convert board.jam --out output/board`                           | Convert entirely locally                                          |
+| `convert board.jam --mapping mapping.json --out output/board`    | Apply local mappings and additions                                |
+| `render output/board/model.json --out output/reviewed`           | Export a saved model again without AI                             |
+| `render model.json --mapping mapping.json --out output/reviewed` | Correct and export a model locally                                |
+| `enrich model.json --model MODEL --dry-run`                      | Review the planned data transfer without making a network request |
 
-`--out` bezeichnet immer einen **Ordner**. Das ist auch bei `enrich` der Fall: Modell und Bilddateien bleiben zusammen und lassen sich später offline rendern. Alle Befehle geben JSON-Zusammenfassungen auf stdout aus; Fehler stehen auf stderr, Exitcode 1. Erfolg verwendet Exitcode 0.
+`--out` always specifies a **directory**. This also applies to `enrich`: the model and image files stay together so they can be rendered offline later. Commands return JSON summaries on stdout; errors go to stderr with exit code 1. Successful commands use exit code 0.
 
-Bestehende Ausgabeordner werden standardmäßig abgelehnt. `--overwrite` aktualisiert nur anhand eines Manifests bekannte, unveränderte Konverterdateien. Eigene Dateien bleiben erhalten; bei manuell geänderten Konverterdateien oder Namenskollisionen bricht der Export ab. Für Änderungen das Modell bzw. eine Mapping-Datei bearbeiten und in einen neuen Ordner rendern.
+Existing output directories are rejected by default. `--overwrite` updates only unchanged converter files recorded in a manifest. Your own files are preserved; the export stops if converter files have been edited manually or filenames conflict. To make changes, edit the model or a mapping file and render into a new directory.
 
-## Ausgabe
-
-```text
-README.md               Überblick mit Mermaid-Diagrammen
-model.json              Bearbeitbares fachliches Modell einschließlich Quellen
-sources.json            Normalisierte native Boardelemente
-sources.md              Quellenkatalog mit Originaltexten und Bildern
-requirements.md         Klassifizierte Anforderungen
-workshop-results.md     Notizen und native Tabellen nach Boardbereich
-review.md               Offene Beziehungen, Bildauswertung und weitere Prüfpunkte
-diagrams/*.mmd          Flowcharts nach Bereich/Sicht
-sequences/*.mmd         Belegte nummerierte Interaktionen
-adrs/*.md               ADR-Entwürfe
-assets/*                Eingebettete Bilder
-.jam-converter.json     Manifest für kontrolliertes Überschreiben
-```
-
-Die Markdown-Dateien sind mit jedem Texteditor lesbar. Ein Reader mit Mermaid-Unterstützung stellt die Diagramme direkt dar. `model.json`, `sources.json` und `assets/` gehören zusammen; ein verschobenes Modell braucht die zugehörigen Bilddateien im selben relativen Pfad.
-
-## Was der lokale Modus erkennt
-
-FigJam speichert Stickies, Formen und Connector-Beschriftungen teilweise in verschachtelten Text-Overrides. Der Import liest diese Texte und die Zeilen-/Spaltenreihenfolge nativer Tabellen aus. Verdeckte und gelöschte Elemente bleiben im Quellenkatalog dokumentiert, erscheinen aber nicht als aktive fachliche Inhalte.
-
-Sections bilden die anfänglichen Fachbereiche. Überschriften mit IST, SOLL/Ziel/Target oder Transition bilden die Sicht. Ein Name allein reicht nicht, um zwei Kästen zusammenzuführen. Bereichsübergreifende Verbindungen zeigen ihre externen Endpunkte ebenfalls.
-
-Verbundene, kurze Kästen werden zunächst als **Diagrammelemente** übernommen. Der Konverter behauptet damit nicht, dass jeder Kasten ein Softwaresystem ist. Lange Texte, Fragen und unklassifizierte Notizen bleiben Workshop-Inhalte.
-
-Anforderungen werden über explizite Anforderungssektionen oder Präfixe wie `Anforderung:` erkannt. ADRs benötigen einen klaren Marker, etwa:
+## Output
 
 ```text
-Kontext: Ein Identity Provider ist vorhanden.
-Entscheidung: OpenID Connect verwenden.
-Begründung: Der vorhandene Provider unterstützt OIDC.
-Folgen: Der Webshop benötigt einen OIDC-Client.
-Status: Im Workshop beschlossen.
+README.md               Overview with Mermaid diagrams
+model.json              Editable domain model, including sources
+sources.json            Normalized native board elements
+sources.md              Source catalog with original text and images
+requirements.md         Classified requirements
+workshop-results.md     Notes and native tables grouped by board area
+review.md               Unresolved relations, image analysis and other review items
+diagrams/*.mmd          Flowcharts grouped by area/view
+sequences/*.mmd         Numbered interactions supported by evidence
+adrs/*.md               Draft ADRs
+assets/*                Embedded images
+.jam-converter.json     Manifest for controlled overwrites
 ```
 
-Fehlende Angaben heißen „nicht dokumentiert“. Jeder erzeugte ADR bleibt ein **Entwurf zur Prüfung**, auch wenn ein Beschlussstatus in der Quelle steht.
+The Markdown files can be read in any text editor. A reader with Mermaid support renders the diagrams directly. Keep `model.json`, `sources.json` and `assets/` together; a relocated model needs its associated image files at the same relative paths.
 
-Sequenzen erfordern eine Sektion wie `Sequenz Login` oder `Ablauf Bestellung` und eindeutig nummerierte, gerichtete Connectoren (`1. Login`, `2. Token`). Die räumliche Anordnung allein begründet keine zeitliche Reihenfolge. Bei Lücken, doppelten Nummern oder unklarer Richtung wird keine Sequenz erfunden.
+## What local conversion recognizes
 
-## Lokale Zuordnungen
+FigJam sometimes stores sticky notes, shapes and connector labels in nested text overrides. The importer reads this text and the row/column order of native tables. Hidden and deleted elements remain documented in the source catalog but do not appear as active domain content.
 
-[`examples/mapping.json`](examples/mapping.json) zeigt eine belegte Umformulierung einer Anforderung. Die vorhandene ID ersetzt denselben Datensatz; eine neue ID ergänzt einen Eintrag. Nicht angegebene Kategorien bleiben erhalten.
+Sections form the initial domain areas. Headings containing IST (current state), SOLL/Ziel/Target (target state) or Transition determine the view. A shared name alone is not enough to merge two boxes. Connections across areas also show their external endpoints.
 
-Ein Mapping kann diese Arrays enthalten:
+Connected boxes with short text are initially imported as **diagram elements**. This does not establish that every box represents a software system. Long text, questions and unclassified notes remain workshop content.
 
-- `areas`: neue oder umbenannte Bereiche mit `id`, `title` und `view`.
-- `assignments`: `{ "sourceId": "1:2", "areaId": "area-1:1" }` ordnet aus dieser Quelle abgeleitete Inhalte einem Bereich zu.
-- `excludeIds`: fachliche Inhalts-IDs, die aus der Ausgabe entfernt werden. Verweisende Beziehungen müssen ebenfalls angepasst werden.
-- `systems`, `relations`, `sequences`, `requirements`, `workshop`, `decisions`: belegte Ergänzungen oder Ersetzungen.
+Requirements are recognized through explicit requirements sections or prefixes such as `Requirement:`. ADRs need a clear decision marker, for example:
 
-Ein Textbeleg besteht aus `sourceId`, einem wörtlichen `quote` und `region: null`. Für Bildbelege ist `sourceId` die Bild-ID (`image:…`) und `region` beschreibt den sichtbaren Bereich. Texte müssen im zitierten Original vorkommen. Referenzen und Sequenznummern werden validiert. Bei nativen Texten muss die Nummerierung am Anfang einer Originalzeile stehen; ein verkürztes Zitat darf keine Reihenfolge erzeugen. Nummern in Bildbelegen bleiben visuell zu prüfende Interpretationen. Die Typen und Felddefinitionen stehen in [`src/model.ts`](src/model.ts); [`examples/demo.model.json`](examples/demo.model.json) enthält vollständige Datensätze.
+```text
+Context: An identity provider is available.
+Decision: Use OpenID Connect.
+Rationale: The existing provider supports OIDC.
+Consequences: The webshop needs an OIDC client.
+Status: Agreed during the workshop.
+```
 
-## Optionale KI-Auswertung
+Missing information is labeled “nicht dokumentiert” (“not documented”). Every generated ADR remains an **“Entwurf zur Prüfung” (“draft for review”)**, even if the source records an approval status. Generated prose currently uses German.
 
-Der erste unterstützte Provider ist **OpenAI Responses**. Du wählst ein in deinem API-Projekt verfügbares Modell mit Structured Outputs und, für Bildauswertung, Bildverständnis. Kein Modell wird stillschweigend voreingestellt.
+Sequences require a section such as `Sequence Login` or `Interaction Order` and clearly numbered, directed connectors (`1. Login`, `2. Token`). Spatial layout alone does not establish chronological order. Missing or duplicate numbers and ambiguous directions do not produce an invented sequence.
+
+## Local mappings
+
+[`examples/mapping.json`](examples/mapping.json) demonstrates a reworded requirement supported by source evidence. An existing ID replaces that record; a new ID adds a record. Categories omitted from the mapping remain unchanged.
+
+A mapping can contain these arrays:
+
+- `areas`: new or renamed areas with `id`, `title` and `view`.
+- `assignments`: `{ "sourceId": "1:2", "areaId": "area-1:1" }` assigns content derived from this source to an area.
+- `excludeIds`: domain content IDs to remove from the output. Relations referencing them must also be updated.
+- `systems`, `relations`, `sequences`, `requirements`, `workshop`, `decisions`: additions or replacements supported by evidence.
+
+Text evidence consists of `sourceId`, a verbatim `quote` and `region: null`. For image evidence, `sourceId` is the image ID (`image:…`) and `region` describes the visible area. Quotes must occur in the original source. References and sequence numbers are validated. For native text, numbering must start at an original source line boundary; shortening a quote must not create an apparent order. Numbers cited from images remain interpretations requiring visual review. Types and field definitions are in [`src/model.ts`](src/model.ts); [`examples/demo.model.json`](examples/demo.model.json) contains complete records.
+
+## Optional AI analysis
+
+The first supported provider is **OpenAI Responses**. Choose a model available in your API project that supports Structured Outputs and, for image analysis, image understanding. No model is selected by default.
 
 ```sh
-export OPENAI_API_KEY="dein-api-schluessel"
-export JAM_CONVERTER_MODEL="dein-modell"
+export OPENAI_API_KEY="your-api-key"
+export JAM_CONVERTER_MODEL="your-model"
 
-# Auswahl prüfen: sichtbare Texte, keine Bilder, keine Übertragung
+# Review the selection: visible text, no images, no data transfer
 node dist/cli.js enrich output/board/model.json --dry-run
 
-# Nur die angegebene Textquelle übertragen
+# Send only the specified text source
 node dist/cli.js enrich output/board/model.json \
   --source "1:2" --out output/enriched
 
-# Nur ein ausgewähltes Bild übertragen
+# Send only one selected image
 node dist/cli.js enrich output/board/model.json \
-  --no-text --image "image:BILDHASH_AUS_INSPECT" --out output/vision
+  --no-text --image "image:IMAGE_HASH_FROM_INSPECT" --out output/vision
 ```
 
-`--source` und `--image` sind wiederholbar. Ohne `--source` werden alle sichtbaren nativen Texte gewählt; Bilder werden ausschließlich über `--image` hinzugefügt. `--no-text` schaltet die Textauswahl aus. Ein vorhandener Schlüssel aktiviert keine KI: `convert` und `render` bleiben offline.
+`--source` and `--image` can be repeated. Without `--source`, all visible native text is selected; images are included only through `--image`. `--no-text` disables text selection. An existing API key does not activate AI: `convert` and `render` remain offline.
 
-Bereits vorhandene Ausgabeordner ohne `--overwrite`, ungültige Manifeste und manuell geänderte Ausgaben werden vor dem API-Aufruf abgelehnt; der Export prüft sie anschließend erneut.
+Existing output directories without `--overwrite`, invalid manifests and manually modified outputs are rejected before the API request. The export checks them again before writing.
 
-Ein Aufruf von `enrich` ohne `--dry-run` sendet die gewählten Daten an die OpenAI-API und kann API-Kosten verursachen. Der Request verwendet `store: false`. Das ist keine Zusage über sämtliche Aufbewahrungsbedingungen des API-Kontos.
+Calling `enrich` without `--dry-run` sends the selected data to the OpenAI API and may incur API costs. The request uses `store: false`. This is not a guarantee covering all data retention policies for the API account.
 
-KI-Ausgaben sind Ergänzungsvorschläge mit Quellenbelegen. Der Konverter prüft Schema, Referenzen und Textzitate; das ersetzt keine fachliche Prüfung der Aussagen oder visuelle Kontrolle von Pfeilrichtungen. KI-Vorschläge dürfen native Inhalte weder löschen noch überschreiben. Sie werden auch in einzelnen Mermaid-Dateien als KI-Vorschläge gekennzeichnet und lassen sich anschließend lokal überarbeiten. Beziehungen dürfen nur übermittelte bestehende oder neu vorgeschlagene Systeme referenzieren.
+AI output consists of proposed additions with source evidence. The converter validates the schema, references and text quotes; this does not replace domain review of the claims or visual checks of arrow directions. AI proposals cannot delete or overwrite native content. They are labeled as AI proposals, including in standalone Mermaid files, and can be revised locally afterwards. Relations may reference only existing systems included in the request or newly proposed systems.
 
-Pro Aufruf gelten Grenzen von 12 Bildern, 160.000 Zeichen Quelltext und 24 MiB Requestgröße. Bei Überschreitung muss die Auswahl verkleinert werden; es wird nicht stillschweigend gekürzt. Fehlende Konfiguration, HTTP-Fehler, verweigerte oder unvollständige Antworten führen zu einem Fehler statt zu scheinbar erfolgreicher Konvertierung.
+Each request is limited to 12 images, 160,000 characters of source text and a 24 MiB request body. If a limit is exceeded, reduce the selection; content is not silently truncated. Missing configuration, HTTP errors, refusals and incomplete responses produce an error instead of an apparent success.
 
-## Grenzen
+## Limitations
 
-- JAM ist ein proprietäres Format. Version 106 wurde mit den beiden bereitgestellten Dateien geprüft; zukünftige Exporte können Anpassungen benötigen.
-- Die lokale Konvertierung rekonstruiert Bilddiagramme nicht. Sie erhält die Bilder und markiert sie für visuelle Auswertung bzw. KI-Auswertung.
-- Farben allein werden nicht als fachlicher Status interpretiert. Bestätigte Bedeutungen können im Modell explizit als Status ergänzt werden.
-- Native Figma-Komponenten, Widgets und komplexe Vektorgrafiken werden nicht vollständig gerendert. Verfügbare Texte bleiben erhalten; nicht unterstützte Typen stehen im Prüfbericht.
-- Kommentare und Versionshistorie sind nicht Bestandteil lokaler JAM-Kopien.
-- Begrenzung: 64 MiB Eingabedatei, 256 MiB entpackte Daten, 100.000 native Nodes. Die Standards sind für lokale Projektboards ausgelegt.
+- JAM is a proprietary format. Version 106 has been tested with the two supplied files; future exports may require adjustments.
+- Local conversion does not reconstruct diagrams embedded as images. It preserves the images and flags them for visual review or AI analysis.
+- Colors alone are not interpreted as domain status. Confirmed meanings can be added explicitly as status fields in the model.
+- Native Figma components, widgets and complex vector graphics are not fully rendered. Available text is preserved; unsupported types are listed in the review report.
+- Comments and version history are not part of local JAM copies.
+- Limits: 64 MiB input file, 256 MiB unpacked data and 100,000 native nodes. These defaults are intended for local project boards.
 
-## Entwicklung und Prüfung
+## Development and verification
 
 ```sh
 pnpm test
@@ -149,8 +149,8 @@ pnpm format:check
 node scripts/validate-mermaid.ts output
 ```
 
-Tests decken native Tabellen/Connectoren, verdeckte Inhalte, Quellbelege, Zuordnungen, Chronologie, ADRs, Mermaid-Syntax, Dateischutz und CLI-Verhalten ab. KI-Tests ersetzen ausschließlich den HTTP-Transport; Kundendaten werden dafür nicht übertragen.
+Tests cover native tables/connectors, hidden content, source evidence, mappings, chronology, ADRs, Mermaid syntax, file protection and CLI behavior. AI tests replace only the HTTP transport; no customer data is transmitted for testing.
 
-Die lokalen Kundenbeispiele und erzeugten Dokumente liegen unter dem ignorierten Verzeichnis `output/`; sie werden nicht ins Repository aufgenommen. Der lokale Prüfbericht ist `output/verification.md`.
+Local customer examples and generated documents are stored in the ignored `output/` directory and are not committed to the repository. The local verification report is `output/verification.md`.
 
-Technische Referenzen: [Figma-Dateiformat](https://help.figma.com/hc/en-us/articles/8403626871063-Save-a-local-copy-of-files), [openfig-core](https://github.com/OpenFig-org/openfig-core), [Mermaid](https://mermaid.js.org/intro/syntax-reference.html), [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [OpenAI-Bildeingaben](https://developers.openai.com/api/docs/guides/images-vision).
+Technical references: [Figma file format](https://help.figma.com/hc/en-us/articles/8403626871063-Save-a-local-copy-of-files), [openfig-core](https://github.com/OpenFig-org/openfig-core), [Mermaid](https://mermaid.js.org/intro/syntax-reference.html), [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [OpenAI image inputs](https://developers.openai.com/api/docs/guides/images-vision).
