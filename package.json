@@ -14,18 +14,21 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
-    "start": "node src/cli.ts"
+    "start": "node src/cli.ts",
+    "format": "prettier --write src test examples scripts README.md docs",
+    "format:check": "prettier --check src test examples scripts README.md docs"
   },
   "dependencies": {
-    "openfig-core": "0.4.1",
     "fflate": "0.8.2",
+    "openfig-core": "0.4.1",
     "zod": "^4.0.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.0",
     "@types/node": "^24.0.0",
-    "typescript": "^5.9.0",
-    "mermaid": "^11.0.0",
     "jsdom": "^26.0.0",
-    "@types/jsdom": "^21.1.0"
+    "mermaid": "^11.0.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.0"
   }
 }
