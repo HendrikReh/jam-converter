@@ -1,0 +1,31 @@
+{
+  "name": "jam-converter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local FigJam to sourced Mermaid and architecture documentation",
+  "bin": {
+    "jam-convert": "dist/cli.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "start": "node src/cli.ts"
+  },
+  "dependencies": {
+    "openfig-core": "0.4.1",
+    "fflate": "0.8.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "mermaid": "^11.0.0",
+    "jsdom": "^26.0.0",
+    "@types/jsdom": "^21.1.0"
+  }
+}
