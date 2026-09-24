@@ -1,0 +1,10 @@
+import {z} from 'zod';
+export const FileSchema=z.object({name:z.string(),sha256:z.string().regex(/^[a-f0-9]{64}$/),formatVersion:z.number().int(),title:z.string().optional(),exportedAt:z.string().optional()});
+export const AssetSchema=z.object({id:z.string(),hash:z.string(),sha256:z.string(),mimeType:z.string(),path:z.string(),nodeIds:z.array(z.string())});
+export const SourceNodeSchema=z.object({id:z.string(),type:z.string(),name:z.string(),text:z.string(),parentId:z.string().optional(),sectionPath:z.array(z.string()),visible:z.boolean(),position:z.object({x:z.number(),y:z.number()}),imageHashes:z.array(z.string()),table:z.array(z.array(z.string())).optional(),connector:z.object({startId:z.string().optional(),endId:z.string().optional(),startArrow:z.boolean(),endArrow:z.boolean()}).optional()});
+export const SourceSchema=z.object({schemaVersion:z.literal(1),file:FileSchema,nodes:z.array(SourceNodeSchema),assets:z.array(AssetSchema),diagnostics:z.array(z.string())});
+export type SourceNode=z.infer<typeof SourceNodeSchema>;
+export type SourceDocument=z.infer<typeof SourceSchema>;
+export type SourceFile=z.infer<typeof FileSchema>;
+export type Asset=z.infer<typeof AssetSchema>;
+export type ImportedBoard={source:SourceDocument;assets:Map<string,Uint8Array>};
