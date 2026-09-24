@@ -1,8 +1,8 @@
 import {MappingSchema,contentKeys} from './model.ts';
 import type{SourceDocument,SourceNode,Model,Evidence,Origin,Mapping}from'./model.ts';
 import {validateModel}from'./validate.ts';
-const evidence=(n:SourceNode):Evidence[]=>[{sourceId:n.id,quote:n.text||n.name,region:null}];
-const label=(n:SourceNode)=>n.text.trim()||n.name.trim();
+const evidence=(n:SourceNode):Evidence[]=>[{sourceId:n.id,quote:n.text.trim()?n.text:n.name,region:null}];
+const label=(n:SourceNode)=>n.text.trim()||(/^(Sticky|Shape|Table|Text|Connector line|Rectangle|Ellipse)$/i.test(n.name.trim())?'':n.name.trim());
 const classifyView=(s:string):Model['areas'][number]['view']=>/\btransition\b/i.test(s)?'transition':/\b(soll|ziel|target)\b/i.test(s)?'soll':/\b(ist|as.is|current)\b/i.test(s)?'ist':'unspecified';
 export function analyze(source:SourceDocument,mapping?:unknown):Model{
  const m:Model={schemaVersion:1,source,areas:[{id:'area-unassigned',title:'Nicht zugeordnet',view:'unspecified'}],systems:[],relations:[],sequences:[],requirements:[],workshop:[],decisions:[],issues:source.diagnostics.map(message=>({code:'import',message,sourceIds:[]}))};

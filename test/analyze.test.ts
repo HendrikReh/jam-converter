@@ -29,3 +29,10 @@ test('sequence mapping requires explicit order evidence and unique consecutive s
  const m=analyze(source());const addition={id:'seq',title:'Order',areaId:m.areas[0].id,evidence:ev('1:4','Orders'),steps:[{order:1,from:m.systems[0].id,to:m.systems[1].id,message:'Orders',evidence:ev('1:4','Orders')}]};
  assert.throws(()=>applyMapping(m,{sequences:[addition]},'manual'),/order|Reihenfolge/i);
 });
+test('whitespace-only native connector labels fall back to their source name',()=>{
+ const ns=simpleNodes();ns[4]={...ns[4],nodeGenerationData:{overrides:[{textData:{characters:'\n '}}]}};
+ const m=analyze(normalizeNodes(ns,file,[]));assert.equal(m.relations.length,1);assert.equal(m.relations[0].evidence[0].quote,'orders');
+});
+test('empty sticky placeholder names do not become workshop content',()=>{
+ const m=analyze(normalizeNodes([rawNode(2,'STICKY','Sticky',0,{textData:{characters:' '}})],file,[]));assert.equal(m.workshop.length,0);
+});
